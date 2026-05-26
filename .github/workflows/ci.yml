@@ -1,0 +1,32 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main", "feature/devops" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout source code
+        uses: actions/checkout@v4 # Cập nhật lên v4 mới nhất để tối ưu hiệu năng
+
+      - name: 2. Install dependencies
+        run: npm install
+
+      - name: 3. Test
+        run: npm test --if-present
+
+      - name: 4. Build docker image
+        run: docker build -t express-hello-world:${{ github.sha }} .
+
+      - name: Notify Success
+        if: success()
+        run: echo "=== [SUCCESS] CI Pipeline completed successfully! ==="
+
+      - name: Notify Failure
+        if: failure()
+        run: echo "=== [FAILURE] CI Pipeline failed! ==="
